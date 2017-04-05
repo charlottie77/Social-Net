@@ -113,6 +113,9 @@
                 group.position.y = 50;
                 scene.add( group );
 
+                var axisHelper = new THREE.AxisHelper( 5 );
+                scene.add( axisHelper );
+
                 var simulation = d3.forceSimulation()
                     .force("link", d3.forceLink().id(function(d) { return d.id; }))
                     .force("charge", d3.forceManyBody())
@@ -153,7 +156,7 @@
 
                     simulation.force("link")
                         .links(graph.links);
-
+                    console.log(graph.nodes[1].id);
 //                    d3.select(canvas)
 //                        .call(d3.drag()
 //                            .container(canvas)
@@ -164,7 +167,6 @@
                     for(let i = 0; i < 16; i++ )
                     {
                         var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
-                        console.log(pointTemp);
                         relationgraph.push(pointTemp);
                     }
                     for(let i = 0; i < 16; i++)
@@ -207,7 +209,11 @@
 //                    }
                 });
 
-                helpPlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 8, 8), new THREE.MeshBasicMaterial({color: 0xffffff}));
+                var material1 = new THREE.MeshStandardMaterial( {
+                    opacity: 0,
+                    transparent: true
+                } );
+                helpPlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 8, 8), material1);
                 //helpPlane.visible = false;
                 scene.add(helpPlane);
 
