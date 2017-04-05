@@ -208,7 +208,7 @@
                 });
 
                 helpPlane = new THREE.Mesh(new THREE.PlaneBufferGeometry(500, 500, 8, 8), new THREE.MeshBasicMaterial({color: 0xffffff}));
-                helpPlane.visible = false;
+                //helpPlane.visible = false;
                 scene.add(helpPlane);
 
                 //var dragControls = new THREE.DragControls( spheres, camera, renderer.domElement );
@@ -266,8 +266,9 @@
 				    INTERSECTED = sects[0].object;
 
 				}
-                var intersects = raycaster.intersectObjects(helpPlane);
-                offset.copy(intersects[0].point).sub(helpPlane.position);
+                var interp = raycaster.intersectObject(helpPlane);
+                console.log(interp[0]);
+                offset.copy(interp[0].point).sub(helpPlane.position);
 
 
                 //mouseXOnMouseDown = event.clientX - windowHalfX;
@@ -283,9 +284,12 @@
                 raycaster.setFromCamera( mouse, camera );
 
                 intersects = raycaster.intersectObjects( spheres );
+
                 if(INTERSECTED)
 				{
-				    INTERSECTED.position.copy(intersects[0].point.sub(offset));
+                    var interp = raycaster.intersectObject( helpPlane );
+				    console.log(interp[0]);
+				    INTERSECTED.position.copy(interp[0].point.sub(offset));
 				}
 				else
 				{
