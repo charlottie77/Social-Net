@@ -52,7 +52,8 @@
 			//if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 			var container;
 			var renderer, scene, camera, stats,controls;
-			var group;
+			var groupSephere, groupLine;
+			var linkNum;
 			var raycaster, intersects;
 			var mouse, INTERSECTED;
 			var width = window.innerWidth;
@@ -90,7 +91,7 @@
 
 
 //                controls.rotateSpeed = 5.0;
-//				controls.zoomSpeed = 3.0;
+//				  controls.zoomSpeed = 3.0;
 //                controls.panSpeed = 0.8;
 //                controls.noZoom = false;
 //                controls.noPan = false;
@@ -109,9 +110,13 @@
 
 
 
-                group = new THREE.Group();
-                group.position.y = 50;
-                scene.add( group );
+                groupSephere = new THREE.Group();
+                groupSephere.position.y = 50;
+                scene.add( groupSephere );
+
+                groupLine = new THREE.Group();
+                groupLine.position.y = 50;
+                scene.add( groupLine );
 
                 var axisHelper = new THREE.AxisHelper( 5 );
                 scene.add( axisHelper );
@@ -143,12 +148,13 @@
                     spheres.push(sphere);
 
                     // add the sphere to the scene
-                    group.add(sphere);
+                    groupSephere.add(sphere);
                 }
 
 
 
                 d3.json("mesi.json", function(error, graph) {
+                    window.GRAPH=graph;
                     if (error) throw error;
                     simulation
                         .nodes(graph.nodes);
@@ -164,6 +170,7 @@
 //                            .on("start", dragstarted)
 //                            .on("drag", dragged)
 //                            .on("end", dragended));
+					linkNum = graph.links.length;
                     for(let i = 0; i < 16; i++ )
                     {
                         var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
@@ -183,7 +190,7 @@
 
                         var line = new THREE.Line( geometry, material );
                         three_links.push(line);
-                        group.add(line);
+                        groupLine.add(line);
 //                        line.userData = {
 //                            source: data.links[i].source,
 //							target: data.links[i].target };
@@ -208,7 +215,6 @@
 //
 //                    }
                 });
-
                 var material1 = new THREE.MeshStandardMaterial( {
                     opacity: 0,
                     transparent: true
@@ -294,8 +300,27 @@
                 if(INTERSECTED)
 				{
                     var interp = raycaster.intersectObject( helpPlane );
-				    console.log(interp[0]);
+				    //console.log(interp[0]);
 				    INTERSECTED.position.copy(interp[0].point.sub(offset));
+				    scene.remove(groupLine);
+
+                    for(let i = 0; i < linkNum; i++)
+                    {
+                        var material = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
+
+                        var geometry = new THREE.Geometry();
+                        geometry.vertices.push( new THREE.Vector3( spheres[GRAPH.links[i].source.index].position.x, spheres[GRAPH.links[i].source.index].position.y, 0 ) );
+                        geometry.vertices.push( new THREE.Vector3( spheres[GRAPH.links[i].target.index].position.x, spheres[GRAPH.links[i].target.index].position.y, 0 ) );
+
+                        var line = new THREE.Line( geometry, material );
+                        three_links.push(line);
+                        groupLine[i] = line;
+                        scene.add(groupLine);
+//                        line.userData = {
+//                            source: data.links[i].source,
+//							target: data.links[i].target };
+                    }
+
 				}
 				else
 				{
