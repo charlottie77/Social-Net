@@ -49,6 +49,7 @@ class Person {
     }
 
     set_pos(pos_x, pos_y, pos_z) {
+        this.node.position.set(pos_x,pos_y,pos_z);
     }
     get_pos() {
         return this.node.position;
@@ -57,11 +58,68 @@ class Person {
         return this.node;
     }
 
-    set_links(line){
-        // this.node.userData.arrLinkLines[uuid] = this.node.userData.arrLinkLines.length;
+    set_links(uuid,line){
+        this.node.userData.arrLinkLines[uuid] = this.node.userData.arrLinkLines.length;
         this.node.userData.arrLinkLines.push(line);
     }
     get_links(){return links}
+
+    move_withLine(groupLine){
+        this.node.userData.arrLinkLines.forEach(function(line){
+            //console.log(uuid);// @注：回调函数的参数就是遍历的每一个对象，这里就是点击的球的每一个连接线uuid
+            // let line = groupLine.getObjectByProperty('uuid',uuid);// @注：拿到该线对象
+            let uuid = line.uuid;
+            let sourcePer = line.userData.source; // @注：提前取出source和target名称数据，等会儿删了就没法取了
+            let targetPer = line.userData.target;
+            let index = groupLine.children.indexOf(line);// @注：拿到该线在groupLine.children数组中的位置，方便删除
+            if(index !== -1){// @注：执行了一次删除后这个index在下一次move事件响应的时候有可能还没有生成新的线所以会找不到，返回-1。找不到的时候就不应该再删线了。
+                let sourceNode = sourcePer.get_obj();
+                let targetNode = targetPer.get_obj();
+                // let sourceNode = groupSephere.getObjectByName(sourceName);
+                // let targetNode = groupSephere.getObjectByName(targetName);
+                let sourcePosition = sourceNode.position;
+                let targetPosition = targetNode.position;
+
+                let geometry = new THREE.Geometry();
+                geometry.vertices.push(sourcePosition);
+                geometry.vertices.push(targetPosition);
+
+                let newLine = new THREE.Line(geometry,myLineMaterial);
+
+                let indexInSource = sourceNode.userData.arrLinkLines[uuid];
+                let indexInTarget = targetNode.userData.arrLinkLines[uuid];
+
+                if(indexInSource === -1 || indexInTarget === -1){
+                    console.error('异步过程异常，暂停');
+                    debugger;
+                }else{
+                    sourceNode.userData.arrLinkLines[indexInSource] = newLine;
+                    sourceNode.userData.arrLinkLines[newLine.uuid] = indexInSource;
+                    delete sourceNode.userData.arrLinkLines[uuid];
+
+                    targetNode.userData.arrLinkLines[indexInTarget] = newLine;
+                    targetNode.userData.arrLinkLines[newLine.uuid] = indexInTarget;
+                    delete targetNode.userData.arrLinkLines[uuid];
+
+                    // sourceNode.userData.arrLinkLines.splice(indexInSource,1);
+                    // sourceNode.userData.arrLinkLines.push(line.uuid);
+
+                    // targetNode.userData.arrLinkLines.splice(indexInTarget,1);
+                    // targetNode.userData.arrLinkLines.push(line.uuid);
+                }
+
+                // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
+                newLine.userData={
+                    target:targetPer,
+                    source:sourcePer
+                }
+
+                groupLine.remove(line);// @注：删线
+                groupLine.add(newLine);// @注：加线，删线加线连在一起操作是为了减少两者之间的时间，间隔越短越不容易观察到线的短暂消失
+            }
+
+        });
+    }
 
 }
 
@@ -77,8 +135,8 @@ class Relation {
        //source_per.node.userdata.arrLinkLines.push(this.line.uuid);
 
         this.line.userData = {
-            target:source_per,
-            source:target_per
+            source:source_per,
+            target:target_per
         };
 
     }
@@ -201,7 +259,7 @@ function init() {
         for(let i = 0; i < 16; i++)
         {
             let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, 0);
-            groupSephere.push(tempPer.get_obj());
+            groupSephere.add(tempPer.get_obj());
             //*** 肥肠trick
             persons[graph.nodes[i].id] = persons.length;
             //***
@@ -221,7 +279,9 @@ function init() {
             //geometry.vertices.push( new THREE.Vector3( graph.links[i].target.x, graph.links[i].target.y, 0 ) );
 
             //var line = new THREE.Line( geometry, myLineMaterial );
-            let tempRe = new Relation(persons[graph.links[i].source.id],persons[graph.links[i].target.id]);
+            let sourcePer = persons[persons[graph.links[i].source.id]];
+            let targetPer = persons[persons[graph.links[i].target.id]];
+            let tempRe = new Relation(sourcePer,targetPer);
             // console.log(line.uuid);
             // @注1：在new了一个Line之后就可以取它的uuid属性作为唯一标识符，之后通过groupLine.getObjectByProperty('uuid',那个uuid字符串)来获取line对象
             // @注2：通过控制台输出GRAPH变量可以看到通过d3.json读取json文件生成的对象的结构，按该结构取到每个links对象的source球的名字和target球的名字，并通过groupSephere.getObjectByName方法取到该球，然后向该球userData属性中的arrLinkLines数组push那条link线的uuid。之后就可以知道动了球之后要重画哪些线了
@@ -319,12 +379,13 @@ function onDocumentMouseDown( event ) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
     raycaster.setFromCamera( mouse, camera );
-    var sects = raycaster.intersectObjects(groupSephere);
+    var sects = raycaster.intersectObjects(groupSephere.children);
 
     if(sects.length > 0)
     {
         controls.enabled = false;
         INTERSECTED = sects[0].object;
+        console.log(INTERSECTED);
 
     }
     var interp = raycaster.intersectObject(helpPlane);
@@ -344,61 +405,73 @@ function onDocumentMouseMove( event ) {
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera( mouse, camera );
 
-    intersects = raycaster.intersectObjects( groupSephere );
-
+    intersects = raycaster.intersectObjects( groupSephere.children );
+    // console.log(intersects[0]);
     if(INTERSECTED)
     {
         var interp = raycaster.intersectObject( helpPlane );
-        //console.log(interp[0]);
+        // console.log(interp[0]);
         INTERSECTED.position.copy(interp[0].point.sub(offset));
-
+        // console.log(INTERSECTED.name);
+        // console.log(persons[INTERSECTED.name]);
+        let personIndex = persons[INTERSECTED.name];
+        persons[personIndex].move_withLine(groupLine);
         //@注：forEach遍历比较方便，而且forEach是回调式不会阻塞，for循环会阻塞主线程
 
-        INTERSECTED.userData.arrLinkLines.forEach(function(line){
-            //console.log(uuid);// @注：回调函数的参数就是遍历的每一个对象，这里就是点击的球的每一个连接线uuid
-            // let line = groupLine.getObjectByProperty('uuid',uuid);// @注：拿到该线对象
-            let sourcePer = line.userData.source; // @注：提前取出source和target名称数据，等会儿删了就没法取了
-            let targetPer = line.userData.target;
-            let index = groupLine.children.indexOf(line);// @注：拿到该线在groupLine.children数组中的位置，方便删除
-            if(index !== -1){// @注：执行了一次删除后这个index在下一次move事件响应的时候有可能还没有生成新的线所以会找不到，返回-1。找不到的时候就不应该再删线了。
-                let sourceNode = sourcePer.get_obj();
-                let targetNode = targetPer.get_obj();
-                // let sourceNode = groupSephere.getObjectByName(sourceName);
-                // let targetNode = groupSephere.getObjectByName(targetName);
-                let sourcePosition = sourceNode.position;
-                let targetPosition = targetNode.position;
+        // INTERSECTED.userData.arrLinkLines.forEach(function(line){
+        //     //console.log(uuid);// @注：回调函数的参数就是遍历的每一个对象，这里就是点击的球的每一个连接线uuid
+        //     // let line = groupLine.getObjectByProperty('uuid',uuid);// @注：拿到该线对象
+        //     let uuid = line.uuid;
+        //     let sourcePer = line.userData.source; // @注：提前取出source和target名称数据，等会儿删了就没法取了
+        //     let targetPer = line.userData.target;
+        //     let index = groupLine.children.indexOf(line);// @注：拿到该线在groupLine.children数组中的位置，方便删除
+        //     if(index !== -1){// @注：执行了一次删除后这个index在下一次move事件响应的时候有可能还没有生成新的线所以会找不到，返回-1。找不到的时候就不应该再删线了。
+        //         let sourceNode = sourcePer.get_obj();
+        //         let targetNode = targetPer.get_obj();
+        //         // let sourceNode = groupSephere.getObjectByName(sourceName);
+        //         // let targetNode = groupSephere.getObjectByName(targetName);
+        //         let sourcePosition = sourceNode.position;
+        //         let targetPosition = targetNode.position;
 
-                let geometry = new THREE.Geometry();
-                geometry.vertices.push(sourcePosition);
-                geometry.vertices.push(targetPosition);
+        //         let geometry = new THREE.Geometry();
+        //         geometry.vertices.push(sourcePosition);
+        //         geometry.vertices.push(targetPosition);
 
-                line = new THREE.Line(geometry,myLineMaterial);
+        //         let newLine = new THREE.Line(geometry,myLineMaterial);
 
-                let indexInSource = sourceNode.userData.arrLinkLines.indexOf(uuid);
-                let indexInTarget = targetNode.userData.arrLinkLines.indexOf(uuid);
+        //         let indexInSource = sourceNode.userData.arrLinkLines[uuid];
+        //         let indexInTarget = targetNode.userData.arrLinkLines[uuid];
 
-                if(indexInSource === -1 || indexInTarget === -1){
-                    console.error('异步过程异常，暂停');
-                    debugger;
-                }else{
-                    sourceNode.userData.arrLinkLines.splice(indexInSource,1);
-                    sourceNode.userData.arrLinkLines.push(line.uuid);
+        //         if(indexInSource === -1 || indexInTarget === -1){
+        //             console.error('异步过程异常，暂停');
+        //             debugger;
+        //         }else{
+        //             sourceNode.userData.arrLinkLines[indexInSource] = newLine;
+        //             sourceNode.userData.arrLinkLines[newLine.uuid] = indexInSource;
+        //             delete sourceNode.userData.arrLinkLines[uuid];
 
-                    targetNode.userData.arrLinkLines.splice(indexInTarget,1);
-                    targetNode.userData.arrLinkLines.push(line.uuid);
-                }
+        //             targetNode.userData.arrLinkLines[indexInTarget] = newLine;
+        //             targetNode.userData.arrLinkLines[newLine.uuid] = indexInTarget;
+        //             delete targetNode.userData.arrLinkLines[uuid];
 
-                // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
-                line.userData={
-                    target:targetName,
-                    source:sourceName
-                }
+        //             // sourceNode.userData.arrLinkLines.splice(indexInSource,1);
+        //             // sourceNode.userData.arrLinkLines.push(line.uuid);
 
-                groupLine.children.splice(index,1);// @注：删线；感觉可能有更优雅的删线方法
-                groupLine.add(line);// @注：加线，删线加线连在一起操作是为了减少两者之间的时间，间隔越短越不容易观察到线的短暂消失
-            }
+        //             // targetNode.userData.arrLinkLines.splice(indexInTarget,1);
+        //             // targetNode.userData.arrLinkLines.push(line.uuid);
+        //         }
 
-        });
+        //         // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
+        //         newLine.userData={
+        //             target:targetPer,
+        //             source:sourcePer
+        //         }
+
+        //         groupLine.remove(line);// @注：删线
+        //         groupLine.add(newLine);// @注：加线，删线加线连在一起操作是为了减少两者之间的时间，间隔越短越不容易观察到线的短暂消失
+        //     }
+
+        // });
 //
 //// 				    scene.remove(groupLine);
 //
@@ -422,7 +495,7 @@ function onDocumentMouseMove( event ) {
     }
     else
     {
-        var sects = raycaster.intersectObjects(spheres);
+        var sects = raycaster.intersectObjects( groupSephere.children );
 
         if(sects.length > 0)
         {
