@@ -27,8 +27,10 @@ var windowHalfY = window.innerHeight / 2;
 var helpPlane;
 var offset = new THREE.Vector3();
 
-const myLineMaterial = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
-const mySphereMaterial = new THREE.MeshLambertMaterial({ color: 0x6bcbc8 });
+// var myLineMaterial = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
+var myLineMaterial = new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } );
+var mySphereMaterial = new THREE.MeshLambertMaterial({ color: 0x6bcbc8 });
+
 
 class Person {
     constructor(id, pos_x, pos_y, pos_z, data = {}) {
@@ -121,6 +123,22 @@ class Person {
         });
     }
 
+    get_color(){
+        return this.node.material.color;
+    }
+
+    set_color(hexColor){
+        this.node.material = new THREE.MeshLambertMaterial({ color: hexColor });
+    }
+
+    set_scale(scalar){
+        this.node.scale.set(scalar,scalar,scalar);
+    }
+
+    get_scale(scale){
+        return this.node.scale;
+    }
+
 }
 
 class Relation {
@@ -163,7 +181,7 @@ function init() {
     camera.position.set(0, 0, 400);
     camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-    controls = new THREE.OrbitControls( camera );
+    controls = new THREE.OrbitControls( camera,container );
     controls.target = new  THREE.Vector3(0, 0, 0);
     controls.maxDistance = 300;
 
@@ -355,12 +373,12 @@ function init() {
 
     stats = new Stats();
     container.appendChild( stats.dom );
-    document.addEventListener( 'mousemove', onDocumentMouseMove, false );
-    document.addEventListener( 'mousedown', onDocumentMouseDown, false );
-    document.addEventListener( 'mouseup', onDocumentMouseUp,false);
+    renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
+    renderer.domElement.addEventListener( 'mousedown', onDocumentMouseDown, false );
+    renderer.domElement.addEventListener( 'mouseup', onDocumentMouseUp,false);
     //document.addEventListener( 'touchstart', onDocumentTouchStart, false );
     //document.addEventListener( 'touchmove', onDocumentTouchMove, false );
-    document.addEventListener( 'resize', onWindowResize, false );
+    renderer.domElement.addEventListener( 'resize', onWindowResize, false );
 
 }
 
@@ -372,7 +390,7 @@ function onWindowResize() {
 
 function onDocumentMouseDown( event ) {
     event.preventDefault();
-
+    console.log('a');
     //document.addEventListener('mouseup', onDocumentMouseUp, false);
     //document.addEventListener('mouseout', onDocumentMouseOut, false);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -401,6 +419,7 @@ function onDocumentMouseDown( event ) {
 
 function onDocumentMouseMove( event ) {
     event.preventDefault();
+    console.log('b');
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera( mouse, camera );
@@ -416,6 +435,7 @@ function onDocumentMouseMove( event ) {
         // console.log(persons[INTERSECTED.name]);
         let personIndex = persons[INTERSECTED.name];
         persons[personIndex].move_withLine(groupLine);
+        window.debugPerson = persons[personIndex];
         //@注：forEach遍历比较方便，而且forEach是回调式不会阻塞，for循环会阻塞主线程
 
         // INTERSECTED.userData.arrLinkLines.forEach(function(line){

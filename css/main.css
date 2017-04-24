@@ -1,0 +1,7 @@
+#admin-panel{
+  position: fixed;
+  height: 20rem;
+  width: 20rem;
+  background: red;
+  right: 0;
+}

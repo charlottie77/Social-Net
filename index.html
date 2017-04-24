@@ -4,18 +4,42 @@
 		<title>three.js webgl - interactive particles</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-
+		<link rel="stylesheet" href="css/main.css">
 	</head>
 
 	<body>
+		<!-- <div id="admin-panel"></div> -->
 		<div id="container">
 			 <!--<canvas width="1400" height="1200" ></canvas> -->
 		</div>
 		<!--<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>-->
+		<script type="text/javascript" src="js/controlKit.js"></script>
+		<script type="text/javascript">
+			window.addEventListener('load',function(){
+				// var obj = {
+				//     number : 0,
+				//     string : 'abc'
+				// };
+				// var controlKit = new ControlKit();
+				//     controlKit.addPanel()
+				//         .addGroup()
+				//             .addSubGroup()
+				//                 .addNumberInput(obj,'number')
+				//                 .addStringInput(obj,'string');
+				var size = {value:1,range:[0.5,2]};
 
 
+				var controlKit = new ControlKit();
+
+				var color = {color:'#6bcbc8'};
+
+				controlKit.addPanel()
+					.addSlider(size,'value','range',{label:'节点大小',onChange:_=>{persons.forEach(p=>{p.set_scale(size.value)})}})
+					.addColor(color,'color',{label:'节点颜色',colorMode:'hex',onChange:_=>{mySphereMaterial.color.setHex(_.replace(/#/,'0x'))}});
+
+			});
+		</script>
 		<script src="js/three.js"></script>
-
 		<script src="js/Detector.js"></script>
 		<script src="js/libs/stats.min.js"></script>
 		<script src="js/d3-force.min.js"></script>
