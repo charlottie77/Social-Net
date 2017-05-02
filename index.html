@@ -31,11 +31,17 @@
 
 				var controlKit = new ControlKit();
 
-				var color = {color:'#6bcbc8'};
+				var colorNode = {color:'#7ebac4'};
+				var colorLine = {color: '#7ebac4'};
+
+				var isDash = {bool: false}
 
 				controlKit.addPanel()
 					.addSlider(size,'value','range',{label:'节点大小',onChange:_=>{persons.forEach(p=>{p.set_scale(size.value)})}})
-					.addColor(color,'color',{label:'节点颜色',colorMode:'hex',onChange:_=>{mySphereMaterial.color.setHex(_.replace(/#/,'0x'))}});
+					.addColor(colorNode,'color',{label:'节点颜色',colorMode:'hex',onChange:_=>{mySphereMaterial.color.setHex(_.replace(/#/,'0x'))}})
+                    .addColor(colorLine,'color',{label:'连线颜色',colorMode:'hex',onChange:_=>{myLineMaterial.color.setHex(_.replace(/#/,'0x'))}})
+					.addCheckbox(isDash,'bool', {label:'虚线', onChange:_=>{myLineMaterial = new THREE.LineBasicMaterial({color:0x7ebac4})}});
+
 
 			});
 		</script>
@@ -50,10 +56,10 @@
 
 		<!--<script type="x-shader/x-vertex" id="vertexshader">-->
 			<!--attribute float size;-->
-			<!--attribute vec3 customColor;-->
-			<!--varying vec3 vColor;-->
-			<!--void main() {-->
-				<!--vColor = customColor;-->
+		<!--attribute vec3 customColor;-->
+		<!--varying vec3 vColor;-->
+		<!--void main() {-->
+		<!--vColor = customColor;-->
 				<!--vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );-->
 				<!--gl_PointSize = size * ( 300.0 / -mvPosition.z );-->
 				<!--gl_Position = projectionMatrix * mvPosition;-->

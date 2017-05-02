@@ -27,9 +27,9 @@ var windowHalfY = window.innerHeight / 2;
 var helpPlane;
 var offset = new THREE.Vector3();
 
-// var myLineMaterial = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
-var myLineMaterial = new THREE.LineDashedMaterial( { color: 0xffaa00, dashSize: 3, gapSize: 1, linewidth: 2 } );
-var mySphereMaterial = new THREE.MeshLambertMaterial({ color: 0x6bcbc8 });
+
+var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
+var mySphereMaterial = new THREE.MeshPhongMaterial({ color: 0x7ebac4 });
 
 
 class Person {
@@ -85,8 +85,10 @@ class Person {
                 let geometry = new THREE.Geometry();
                 geometry.vertices.push(sourcePosition);
                 geometry.vertices.push(targetPosition);
+                geometry.computeLineDistances();
 
-                let newLine = new THREE.Line(geometry,myLineMaterial);
+                //let newLine = new THREE.Line(geometry, new THREE.LineDashedMaterial( { color: 0xffffff, dashSize: 1, gapSize: 0.5 }));
+                let newLine = new THREE.Line(geometry, myLineMaterial);
 
                 let indexInSource = sourceNode.userData.arrLinkLines[uuid];
                 let indexInTarget = targetNode.userData.arrLinkLines[uuid];
@@ -146,8 +148,9 @@ class Relation {
         var geometry = new THREE.Geometry();
         geometry.vertices.push( source_per.get_pos() );
         geometry.vertices.push( target_per.get_pos() );
+        geometry.computeLineDistances();
 
-       this.line = new THREE.Line( geometry, myLineMaterial );
+        this.line = new THREE.Line( geometry,  myLineMaterial);
        source_per.set_links(this.line.uuid, this.line);
        target_per.set_links(this.line.uuid, this.line);
        //source_per.node.userdata.arrLinkLines.push(this.line.uuid);
@@ -197,15 +200,6 @@ function init() {
     scene = new THREE.Scene();
     scene.add(camera);
 
-    renderer = new THREE.WebGLRenderer({antialiasing: true});
-    renderer.setPixelRatio( window.devicePixelRatio );
-    renderer.setSize(width, height);
-    renderer.setClearColor( 0xf0f0f0);
-
-    container.appendChild( renderer.domElement );
-
-
-
     groupSephere = new THREE.Group();
     groupSephere.position.y = 50;
     scene.add( groupSephere );
@@ -213,6 +207,17 @@ function init() {
     groupLine = new THREE.Group();
     groupLine.position.y = 50;
     scene.add( groupLine );
+
+    renderer = new THREE.WebGLRenderer({antialiasing: true});
+    renderer.setPixelRatio( window.devicePixelRatio );
+    renderer.setSize(width, height);
+    renderer.setClearColor( 0x000000);
+
+    container.appendChild( renderer.domElement );
+
+
+
+
 
     var axisHelper = new THREE.AxisHelper( 500 );
     scene.add( axisHelper );
@@ -353,23 +358,59 @@ function init() {
     //var dragControls = new THREE.DragControls( spheres, camera, renderer.domElement );
     //dragControls.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } );
     //dragControls.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );
-    var pointLight = new THREE.PointLight( 0xFFFFFF );
+    var pointLight = new THREE.PointLight( 0xFFFFFF,1, 500,2 );
+    // set its position
+    pointLight.position.x = 50;
+    pointLight.position.y = 100;
+    pointLight.position.z = 10;
+
+    var pointLight1 = new THREE.PointLight( 0xFFFFFF,1 , 500,2);
 
     // set its position
-    pointLight.position.x = 10;
-    pointLight.position.y = 50;
-    pointLight.position.z = 130;
+    pointLight1.position.x = -50;
+    pointLight1.position.y = 0;
+    pointLight1.position.z = 10;
 
-    var pointLight1 = new THREE.PointLight( 0xFFFFFF );
+    var pointLight2 = new THREE.PointLight( 0xFFFFFF,1 , 500,2);
 
     // set its position
-    pointLight1.position.x = 10;
-    pointLight1.position.y = 50;
-    pointLight1.position.z = -130;
+    pointLight2.position.x = 0;
+    pointLight2.position.y = 150;
+    pointLight2.position.z = 50;
 
-    // add to the scene
+    var pointLight3 = new THREE.PointLight( 0xFFFFFF,1 , 500,2);
+
+    // set its position
+    pointLight3.position.x = 0;
+    pointLight3.position.y = 150;
+    pointLight3.position.z = -50;
+
+    //add to the scene
     scene.add(pointLight);
     scene.add(pointLight1);
+    scene.add(pointLight2);
+    scene.add(pointLight3);
+
+    // var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
+    // hemiLight.color.setHSL( 0.6, 1, 0.6 );
+    // hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
+    // hemiLight.position.set( 0, 500, 0 )
+    // scene.add( hemiLight );
+    // //
+    // var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
+    // dirLight.color.setHSL( 0.1, 1, 0.95 );
+    // dirLight.position.set( -1, 1.75, 1 );
+    // dirLight.position.multiplyScalar( 50 );
+    // scene.add( dirLight );
+    // dirLight.castShadow = true;
+
+    // var light1 = new THREE.DirectionalLight( 0xefefff, 1.5 );
+    // light1.position.set( 1, 1, 1 ).normalize();
+    // scene.add( light1 );
+    // var light2= new THREE.DirectionalLight( 0xffefef, 1.5 );
+    // light2.position.set( -1, -1, -1 ).normalize();
+    // scene.add( light2 );
+
 
     stats = new Stats();
     container.appendChild( stats.dom );
