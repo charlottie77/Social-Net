@@ -257,7 +257,7 @@ function init() {
 
 
 
-    d3.json("mesi.json", function(error, graph) {
+    d3.json("data.json", function(error, graph) {
         window.GRAPH=graph;
         if (error) throw error;
         simulation
@@ -275,12 +275,12 @@ function init() {
 //                            .on("drag", dragged)
 //                            .on("end", dragended));
         linkNum = graph.links.length;
-        for(let i = 0; i < 16; i++ )
+        for(let i = 0; i < graph.nodes.length; i++ )
         {
             var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
             relationgraph.push(pointTemp);
         }
-        for(let i = 0; i < 16; i++)
+        for(let i = 0; i < graph.nodes.length; i++)
         {
             let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, 0);
             groupSephere.add(tempPer.get_obj());
