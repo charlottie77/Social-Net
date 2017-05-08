@@ -14,6 +14,7 @@
 		</div>
 		<!--<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>-->
 		<script type="text/javascript" src="js/controlKit.js"></script>
+		<script type="text/javascript" src="js/faker.min.js"></script>
 		<script type="text/javascript">
 			window.addEventListener('load',function(){
 				// var obj = {
@@ -34,13 +35,24 @@
 				var colorNode = {color:'#7ebac4'};
 				var colorLine = {color: '#7ebac4'};
 
-				var isDash = {bool: false}
+				var isDash = {bool: true}
 
 				controlKit.addPanel()
 					.addSlider(size,'value','range',{label:'节点大小',onChange:_=>{persons.forEach(p=>{p.set_scale(size.value)})}})
 					.addColor(colorNode,'color',{label:'节点颜色',colorMode:'hex',onChange:_=>{mySphereMaterial.color.setHex(_.replace(/#/,'0x'))}})
                     .addColor(colorLine,'color',{label:'连线颜色',colorMode:'hex',onChange:_=>{myLineMaterial.color.setHex(_.replace(/#/,'0x'))}})
-					.addCheckbox(isDash,'bool', {label:'虚线', onChange:_=>{myLineMaterial = new THREE.LineBasicMaterial({color:0x7ebac4})}});
+                    .addCheckbox(isDash,'bool', {label:'虚线', onChange: _ => {
+				    	if(isDash.bool){
+				    	    groupLine.children.forEach( (e) => {
+				    	        e.material = myLineMaterial;
+							} );
+						}else{
+				    	    groupLine.children.forEach ( (e) => {
+				    	        e.material = new THREE.LineBasicMaterial({color:0x7ebac4});
+							} )
+						}
+					}});
+//					.addCheckbox(isDash,'bool', {label:'虚线', onChange:_=>{myLineMaterial = new THREE.LineBasicMaterial({color:0x7ebac4})}});
 
 
 			});

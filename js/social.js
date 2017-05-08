@@ -29,6 +29,7 @@ var offset = new THREE.Vector3();
 
 
 var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
+//var myLineMaterial = new THREE.LineBasicMaterial( { color: 0x7ebac4 } );
 var mySphereMaterial = new THREE.MeshPhongMaterial({ color: 0x7ebac4 });
 
 
