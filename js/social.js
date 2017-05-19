@@ -228,42 +228,13 @@ function init() {
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(width / 2, height / 2));
 
-    for (var i = 0; i < 16; i++) {
-        // set up the sphere vars
-        // var radius = 5,
-        //     segments = 16,
-        //     rings = 16;
-        //
-        // // create the sphere's material
-        // // @注：全局声明常量材质
-        // // var sphereMaterial = new THREE.MeshLambertMaterial(
-        // //     {
-        // //         color: 0x6bcbc8
-        // //     });
-        //
-        // var sphere = new THREE.Mesh(
-        //     new THREE.SphereGeometry(
-        //         radius,
-        //         segments,
-        //         rings),
-        //     mySphereMaterial);
-        //
-        // spheres.push(sphere);
-        //
-        // // add the sphere to the scene
-        // groupSephere.add(sphere);
-
-    }
 
 
-
-    d3.json("data.json", function(error, graph) {
+    d3.json("policeData.json", function(error, graph) {
         window.GRAPH=graph;
         if (error) throw error;
         simulation
             .nodes(graph.nodes);
-        //  .on("tick", ticked);
-
         simulation.force("link")
             .links(graph.links);
         console.log(graph.nodes[1].id);
@@ -275,6 +246,7 @@ function init() {
 //                            .on("drag", dragged)
 //                            .on("end", dragended));
         linkNum = graph.links.length;
+        console.log(linkNum);
         for(let i = 0; i < graph.nodes.length; i++ )
         {
             var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
