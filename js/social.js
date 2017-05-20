@@ -46,10 +46,13 @@ class Person {
                 rings),
             mySphereMaterial);
         this.node.position.set(pos_x, pos_y, pos_z);
-        this.node.name = id;
+        this.id = id;
         this.data = data;
 
         this.node.userData = {arrLinkLines:[]};
+    }
+    set_name(name) {
+        this.node.name = name;
     }
 
     set_pos(pos_x, pos_y, pos_z) {
@@ -270,6 +273,8 @@ function init() {
             persons[graph.nodes[i].id] = persons.length;
             //***
             persons.push( tempPer );
+            console.log(graph.nodes[i].name);
+            persons[i].set_name(graph.nodes[i].name);
             // @注1：把没个sphere的name属性赋值为node的id（json数据里Geborand，Myriel之类的人名），之后就可以通过groupSephere.getObjectByName(那个人名)取到对应的球
             // @注2：userData属性是用来给你放自定义数据的，在这里放一个叫arrLinkLines的数组存每个球各自连着的线的uuid，这个uuid是什么下面有讲
             //spheres[i].name = graph.nodes[i].id;
@@ -354,7 +359,7 @@ function init() {
 
     //node info canvas texture
     var matNodeInfo = new THREE.MeshBasicMaterial();
-    node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(30, 30), matNodeInfo);
+    node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 5), matNodeInfo);
     //var texture1 = new THREE.Texture(canvass);
     matNodeInfo.map = new THREE.CanvasTexture(canvass);
     matNodeInfo.map.needsUpdate = true;
