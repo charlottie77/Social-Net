@@ -5,7 +5,7 @@
 //if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container;
 var renderer, scene, camera, stats,controls;
-var groupSephere, groupLine;
+var groupSephere, groupLine, groupInfo;
 var linkNum;
 var raycaster, intersects;
 var mouse, INTERSECTED;
@@ -17,6 +17,7 @@ var spheres = [];
 let persons = [];
 var three_links = [];
 var relationgraph = [];
+var array_info = [];
 
 var targetRotation = 0;
 var targetRotationOnMouseDown = 0;
@@ -26,7 +27,7 @@ var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var helpPlane;
 var offset = new THREE.Vector3();
-var node_info;
+
 
 
 var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
@@ -63,6 +64,12 @@ class Person {
     }
     get_obj() {
         return this.node;
+    }
+    get_name() {
+        return this.node.name;
+    }
+    get_id() {
+        return this.id;
     }
 
     set_links(uuid,line){
@@ -178,6 +185,7 @@ class Relation {
 
 
 init();
+//drawCanvasTexture();
 animate();
 
 function init() {
@@ -213,6 +221,10 @@ function init() {
     groupLine.position.y = 50;
     scene.add( groupLine );
 
+    groupInfo = new THREE.Group();
+    groupInfo.position.y = 50;
+    scene.add(groupInfo);
+
     renderer = new THREE.WebGLRenderer({antialiasing: true});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(width, height);
@@ -241,14 +253,7 @@ function init() {
             .nodes(graph.nodes);
         simulation.force("link")
             .links(graph.links);
-        console.log(graph.nodes[1].id);
-//                    d3.select(canvas)
-//                        .call(d3.drag()
-//                            .container(canvas)
-//                            .subject(dragsubject)
-//                            .on("start", dragstarted)
-//                            .on("drag", dragged)
-//                            .on("end", dragended));
+        //console.log(graph.nodes[1].id);
         linkNum = graph.links.length;
         console.log(linkNum);
         for(let i = 0; i < graph.nodes.length; i++ )
@@ -273,13 +278,14 @@ function init() {
             persons[graph.nodes[i].id] = persons.length;
             //***
             persons.push( tempPer );
-            console.log(graph.nodes[i].name);
+            //console.log(graph.nodes[i].name);
             persons[i].set_name(graph.nodes[i].name);
             // @注1：把没个sphere的name属性赋值为node的id（json数据里Geborand，Myriel之类的人名），之后就可以通过groupSephere.getObjectByName(那个人名)取到对应的球
             // @注2：userData属性是用来给你放自定义数据的，在这里放一个叫arrLinkLines的数组存每个球各自连着的线的uuid，这个uuid是什么下面有讲
             //spheres[i].name = graph.nodes[i].id;
             //spheres[i].userData = {arrLinkLines:[]};
         }
+        drawCanvasTexture();
         for(let i = 0; i < graph.links.length; i++)
         {
             // @注：通用材质不要每次都new，性能开销大，在声明全局变量myLineMaterial一直用，就像C++ define常量
@@ -335,6 +341,7 @@ function init() {
 //
 //                    }
     });
+
     var material1 = new THREE.MeshStandardMaterial( {
         opacity: 0,
         transparent: true
@@ -357,20 +364,22 @@ function init() {
     secondYear.position.y = 50;
     secondYear.position.z = 40;
 
+
+
+    //ctx.fillText('项可平',0 ,60);
+    //ctx.fillText('925678199609068221',0 , 130);
+    //canvass.style.visibility = 'hidden';
+
     //node info canvas texture
-    var matNodeInfo = new THREE.MeshBasicMaterial();
-    node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 5), matNodeInfo);
-    //var texture1 = new THREE.Texture(canvass);
-    matNodeInfo.map = new THREE.CanvasTexture(canvass);
-    matNodeInfo.map.needsUpdate = true;
 
 
-    node_info.position.z = -20;
+
+    //node_info.position.z = -20;
 
 
-    scene.add(firstYear);
-    scene.add(secondYear);
-    scene.add(node_info);
+    //scene.add(firstYear);
+    //scene.add(secondYear);
+
 
 
 
@@ -447,6 +456,34 @@ function init() {
 
 }
 
+function drawCanvasTexture() {
+    //canvas draw
+    var canvass = document.getElementById('info');
+    var ctx = canvass.getContext('2d');
+    ctx.font = '75px serif';
+    ctx.fillStyle = '#ffffff';
+    console.log(persons.length + 'p');
+    var offset = new THREE.Vector3(0,5,0);
+    for(let i = 0; i < persons.length; i++)
+    {
+        console.log('success2');
+        ctx.fillText(persons[i].get_name(), 0, 60);
+        ctx.fillText(persons[i].get_id(), 0, 120);
+        var matNodeInfo = new THREE.MeshBasicMaterial();
+        var node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 5), matNodeInfo);
+        //var texture1 = new THREE.Texture(canvass);
+        console.log(persons[i].get_name() + 'print');
+        matNodeInfo.map = new THREE.CanvasTexture(canvass);
+        //matNodeInfo.map.needsUpdate = true;
+        console.log(persons[i].get_pos());
+        node_info.position.set(persons[i].get_pos().x, persons[i].get_pos().y, persons[i].get_pos().z);
+        //scene.add(node_info);
+        groupInfo.add(node_info);
+        ctx.clearRect(0, 0, 600, 150);
+    }
+}
+
+
 function onWindowResize() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
@@ -490,7 +527,11 @@ function onDocumentMouseMove( event ) {
     raycaster.setFromCamera( mouse, camera );
 
     intersects = raycaster.intersectObjects( groupSephere.children );
-    node_info.lookAt(camera.position);
+    // for(let i = 0; i < persons.length; i++)
+    // {
+    //     array_info[i].lookAt(camera.position);
+    // }
+    //node_info.lookAt(camera.position);
     // console.log(intersects[0]);
     if(INTERSECTED)
     {
