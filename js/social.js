@@ -26,6 +26,7 @@ var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var helpPlane;
 var offset = new THREE.Vector3();
+var node_info;
 
 
 var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
@@ -252,9 +253,18 @@ function init() {
             var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
             relationgraph.push(pointTemp);
         }
+        //set z axis
+        for(let i = 3; i < 6; i++)
+        {
+            relationgraph[i].z = 20;
+        }
+        for(let i = 6; i < 10; i++)
+        {
+            relationgraph[i].z = 40;
+        }
         for(let i = 0; i < graph.nodes.length; i++)
         {
-            let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, 0);
+            let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, relationgraph[i].z);
             groupSephere.add(tempPer.get_obj());
             //*** 肥肠trick
             persons[graph.nodes[i].id] = persons.length;
@@ -328,6 +338,37 @@ function init() {
     //helpPlane.visible = false;
     scene.add(helpPlane);
 
+    var matYear = new THREE.MeshStandardMaterial( {
+        opacity: 0.5,
+        transparent: true
+    } );
+    var firstYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
+    //firstYear.position.x = 50;
+    firstYear.position.y = 50;
+    firstYear.position.z = 20;
+
+    var secondYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
+    //secondYear.position.x = 50;
+    secondYear.position.y = 50;
+    secondYear.position.z = 40;
+
+    //node info canvas texture
+    var matNodeInfo = new THREE.MeshBasicMaterial();
+    node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(30, 30), matNodeInfo);
+    //var texture1 = new THREE.Texture(canvass);
+    matNodeInfo.map = new THREE.CanvasTexture(canvass);
+    matNodeInfo.map.needsUpdate = true;
+
+
+    node_info.position.z = -20;
+
+
+    scene.add(firstYear);
+    scene.add(secondYear);
+    scene.add(node_info);
+
+
+
     //var dragControls = new THREE.DragControls( spheres, camera, renderer.domElement );
     //dragControls.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } );
     //dragControls.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );
@@ -363,6 +404,11 @@ function init() {
     scene.add(pointLight1);
     scene.add(pointLight2);
     scene.add(pointLight3);
+
+    // var cpos = relationgraph[0].position;
+    // var xbase = new THREE.Vector3(1, 0, 0);
+    // var zbase = new THREE.Vector3(0, 0, 1);
+    // var xpos =
 
     // var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
     // hemiLight.color.setHSL( 0.6, 1, 0.6 );
@@ -439,6 +485,7 @@ function onDocumentMouseMove( event ) {
     raycaster.setFromCamera( mouse, camera );
 
     intersects = raycaster.intersectObjects( groupSephere.children );
+    node_info.lookAt(camera.position);
     // console.log(intersects[0]);
     if(INTERSECTED)
     {
@@ -536,6 +583,7 @@ function onDocumentMouseMove( event ) {
             helpPlane.position.copy(sects[0].object.position);
             helpPlane.lookAt(camera.position);
 
+
         }
     }
 
@@ -567,6 +615,7 @@ function onDocumentMouseUp( event ) {
     //document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
     controls.enabled = true;
     INTERSECTED = null;
+
 }
 //            function onDocumentMouseOut( event ) {
 //                //document.removeEventListener( 'mousemove', onDocumentMouseMove, false );

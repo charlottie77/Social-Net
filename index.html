@@ -5,11 +5,13 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<link rel="stylesheet" href="css/main.css">
+
 	</head>
 
 	<body>
 		<!-- <div id="admin-panel"></div> -->
 		<div id="container">
+			<canvas id="info" width="400" height="400" style="position: fixed"></canvas>
 			 <!--<canvas width="1400" height="1200" ></canvas> -->
 		</div>
 		<!--<div id="info"><a href="http://threejs.org" target="_blank">three.js</a> webgl - interactive - particles</div>-->
@@ -88,9 +90,17 @@
 				<!--if ( gl_FragColor.a < ALPHATEST ) discard;-->
 			<!--}-->
 		<!--</script>-->
-		
+		<script type="text/javascript">
+            var canvass = document.getElementById('info');
+            var ctx = canvass.getContext('2d');
+            ctx.font = '75px serif';
+            ctx.fillStyle = '#ffff00';
+            ctx.fillText('妖刀姬',60 ,60);
+            //canvass.style.visibility = 'hidden';
 
+		</script>
 		<script src="js/social.js"></script>
+
 
 	</body>
 
