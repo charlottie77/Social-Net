@@ -11,13 +11,10 @@ var raycaster, intersects;
 var mouse, INTERSECTED;
 var width = window.innerWidth;
 var height = window.innerHeight;
-//var canvas = document.querySelector("canvas");
-//var context = canvas.getContext("2d");
 var spheres = [];
 let persons = [];
 var three_links = [];
 var relationgraph = [];
-var array_info = [];
 
 var targetRotation = 0;
 var targetRotationOnMouseDown = 0;
@@ -116,12 +113,6 @@ class Person {
                     targetNode.userData.arrLinkLines[indexInTarget] = newLine;
                     targetNode.userData.arrLinkLines[newLine.uuid] = indexInTarget;
                     delete targetNode.userData.arrLinkLines[uuid];
-
-                    // sourceNode.userData.arrLinkLines.splice(indexInSource,1);
-                    // sourceNode.userData.arrLinkLines.push(line.uuid);
-
-                    // targetNode.userData.arrLinkLines.splice(indexInTarget,1);
-                    // targetNode.userData.arrLinkLines.push(line.uuid);
                 }
 
                 // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
@@ -129,7 +120,6 @@ class Person {
                     target:targetPer,
                     source:sourcePer
                 }
-
                 groupLine.remove(line);// @注：删线
                 groupLine.add(newLine);// @注：加线，删线加线连在一起操作是为了减少两者之间的时间，间隔越短越不容易观察到线的短暂消失
             }
@@ -165,7 +155,6 @@ class Relation {
         this.line = new THREE.Line( geometry,  myLineMaterial);
        source_per.set_links(this.line.uuid, this.line);
        target_per.set_links(this.line.uuid, this.line);
-       //source_per.node.userdata.arrLinkLines.push(this.line.uuid);
 
         this.line.userData = {
             source:source_per,
@@ -201,15 +190,6 @@ function init() {
     controls.target = new  THREE.Vector3(0, 0, 0);
     controls.maxDistance = 300;
 
-
-//                controls.rotateSpeed = 5.0;
-//				  controls.zoomSpeed = 3.0;
-//                controls.panSpeed = 0.8;
-//                controls.noZoom = false;
-//                controls.noPan = false;
-//                controls.staticMoving = true;
-//                controls.dynamicDampingFactor = 0.3;
-
     scene = new THREE.Scene();
     scene.add(camera);
 
@@ -231,9 +211,6 @@ function init() {
     renderer.setClearColor( 0x000000);
 
     container.appendChild( renderer.domElement );
-
-
-
 
 
     var axisHelper = new THREE.AxisHelper( 500 );
@@ -282,64 +259,17 @@ function init() {
             persons[i].set_name(graph.nodes[i].name);
             // @注1：把没个sphere的name属性赋值为node的id（json数据里Geborand，Myriel之类的人名），之后就可以通过groupSephere.getObjectByName(那个人名)取到对应的球
             // @注2：userData属性是用来给你放自定义数据的，在这里放一个叫arrLinkLines的数组存每个球各自连着的线的uuid，这个uuid是什么下面有讲
-            //spheres[i].name = graph.nodes[i].id;
-            //spheres[i].userData = {arrLinkLines:[]};
         }
         drawCanvasTexture();
         for(let i = 0; i < graph.links.length; i++)
         {
             // @注：通用材质不要每次都new，性能开销大，在声明全局变量myLineMaterial一直用，就像C++ define常量
-            // var material = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
-
-            //var geometry = new THREE.Geometry();
-            //geometry.vertices.push( new THREE.Vector3( graph.links[i].source.x, graph.links[i].source.y, 0 ) );
-            //geometry.vertices.push( new THREE.Vector3( graph.links[i].target.x, graph.links[i].target.y, 0 ) );
-
-            //var line = new THREE.Line( geometry, myLineMaterial );
             let sourcePer = persons[persons[graph.links[i].source.id]];
             let targetPer = persons[persons[graph.links[i].target.id]];
             let tempRe = new Relation(sourcePer,targetPer);
             // console.log(line.uuid);
-            // @注1：在new了一个Line之后就可以取它的uuid属性作为唯一标识符，之后通过groupLine.getObjectByProperty('uuid',那个uuid字符串)来获取line对象
-            // @注2：通过控制台输出GRAPH变量可以看到通过d3.json读取json文件生成的对象的结构，按该结构取到每个links对象的source球的名字和target球的名字，并通过groupSephere.getObjectByName方法取到该球，然后向该球userData属性中的arrLinkLines数组push那条link线的uuid。之后就可以知道动了球之后要重画哪些线了
-            // groupSephere
-            //     .getObjectByName(graph.links[i].source.id)
-            //     .userData.arrLinkLines.push(line.uuid);
-            // groupSephere
-            //     .getObjectByName(graph.links[i].target.id)
-            //     .userData.arrLinkLines.push(line.uuid);
-
-            // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
-            // line.userData={
-            //     target:graph.links[i].target.id,
-            //     source:graph.links[i].source.id
-            // }
-
-           // three_links.push(tempRe);
             groupLine.add(tempRe.get_obj());
-//                        line.userData = {
-//                            source: data.links[i].source,
-//							target: data.links[i].target };
         }
-
-//                    function ticked() {
-////                        context.clearRect(0, 0, width, height);
-////
-////                        context.beginPath();
-////                        graph.links.forEach(drawLink);
-////                        context.strokeStyle = "#aaa";
-////                        context.stroke();
-////
-////                        context.beginPath();
-////                        graph.nodes.forEach(drawNode);
-////                        context.fill();
-////                        context.strokeStyle = "#fff";
-////                        context.stroke();
-//
-//
-//                       // renderer.render(scene, camera);
-//
-//                    }
     });
 
     var material1 = new THREE.MeshStandardMaterial( {
@@ -364,28 +294,9 @@ function init() {
     secondYear.position.y = 50;
     secondYear.position.z = 40;
 
-
-
-    //ctx.fillText('项可平',0 ,60);
-    //ctx.fillText('925678199609068221',0 , 130);
-    //canvass.style.visibility = 'hidden';
-
-    //node info canvas texture
-
-
-
-    //node_info.position.z = -20;
-
-
     //scene.add(firstYear);
     //scene.add(secondYear);
 
-
-
-
-    //var dragControls = new THREE.DragControls( spheres, camera, renderer.domElement );
-    //dragControls.addEventListener( 'dragstart', function ( event ) { controls.enabled = false; } );
-    //dragControls.addEventListener( 'dragend', function ( event ) { controls.enabled = true; } );
     var pointLight = new THREE.PointLight( 0xFFFFFF,1, 500,2 );
     // set its position
     pointLight.position.x = 50;
@@ -419,32 +330,6 @@ function init() {
     scene.add(pointLight2);
     scene.add(pointLight3);
 
-    // var cpos = relationgraph[0].position;
-    // var xbase = new THREE.Vector3(1, 0, 0);
-    // var zbase = new THREE.Vector3(0, 0, 1);
-    // var xpos =
-
-    // var hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.6 );
-    // hemiLight.color.setHSL( 0.6, 1, 0.6 );
-    // hemiLight.groundColor.setHSL( 0.095, 1, 0.75 );
-    // hemiLight.position.set( 0, 500, 0 )
-    // scene.add( hemiLight );
-    // //
-    // var dirLight = new THREE.DirectionalLight( 0xffffff, 1 );
-    // dirLight.color.setHSL( 0.1, 1, 0.95 );
-    // dirLight.position.set( -1, 1.75, 1 );
-    // dirLight.position.multiplyScalar( 50 );
-    // scene.add( dirLight );
-    // dirLight.castShadow = true;
-
-    // var light1 = new THREE.DirectionalLight( 0xefefff, 1.5 );
-    // light1.position.set( 1, 1, 1 ).normalize();
-    // scene.add( light1 );
-    // var light2= new THREE.DirectionalLight( 0xffefef, 1.5 );
-    // light2.position.set( -1, -1, -1 ).normalize();
-    // scene.add( light2 );
-
-
     stats = new Stats();
     container.appendChild( stats.dom );
     renderer.domElement.addEventListener( 'mousemove', onDocumentMouseMove, false );
@@ -458,28 +343,41 @@ function init() {
 
 function drawCanvasTexture() {
     //canvas draw
-    var canvass = document.getElementById('info');
-    var ctx = canvass.getContext('2d');
-    ctx.font = '75px serif';
-    ctx.fillStyle = '#ffffff';
-    console.log(persons.length + 'p');
-    var offset = new THREE.Vector3(0,5,0);
+
+    var offset = new THREE.Vector3(0,7,0);
     for(let i = 0; i < persons.length; i++)
     {
         console.log('success2');
+
+        var canvass = document.createElement('canvas');
+        //document.body.appendChild(canvass);
+        canvass.width = 600;
+        canvass.height = 150;
+        canvass.style.width = '600px';
+        canvass.style.height = '150px';
+
+        var ctx = canvass.getContext('2d');
+        ctx.font = '75px serif';
+        ctx.fillStyle = '#ffffff';
+       // console.log(persons.length + 'p');
         ctx.fillText(persons[i].get_name(), 0, 60);
-        ctx.fillText(persons[i].get_id(), 0, 120);
+        ctx.fillText(persons[i].get_id(), 0, 130);
         var matNodeInfo = new THREE.MeshBasicMaterial();
-        var node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(20, 5), matNodeInfo);
+        var node_info = new THREE.Mesh(new THREE.PlaneBufferGeometry(10, 2.5), matNodeInfo);
         //var texture1 = new THREE.Texture(canvass);
         console.log(persons[i].get_name() + 'print');
         matNodeInfo.map = new THREE.CanvasTexture(canvass);
         //matNodeInfo.map.needsUpdate = true;
-        console.log(persons[i].get_pos());
-        node_info.position.set(persons[i].get_pos().x, persons[i].get_pos().y, persons[i].get_pos().z);
-        //scene.add(node_info);
+        //console.log(persons[i].get_pos());
+
+        var info_pos = new THREE.Vector3(persons[i].get_pos().x, persons[i].get_pos().y, persons[i].get_pos().z);
+        info_pos.add(offset);
+        //info_pos.add(offset);
+        console.log(info_pos);
+        node_info.position.set(info_pos.x, info_pos.y, info_pos.z);
+        console.log(JSON.stringify(node_info.position) + 'mb');
         groupInfo.add(node_info);
-        ctx.clearRect(0, 0, 600, 150);
+        //ctx.clearRect(0, 0, 600, 150);
     }
 }
 
@@ -493,8 +391,6 @@ function onWindowResize() {
 function onDocumentMouseDown( event ) {
     event.preventDefault();
     console.log('a');
-    //document.addEventListener('mouseup', onDocumentMouseUp, false);
-    //document.addEventListener('mouseout', onDocumentMouseOut, false);
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
@@ -511,12 +407,6 @@ function onDocumentMouseDown( event ) {
     var interp = raycaster.intersectObject(helpPlane);
     // console.log(interp[0]);
     offset.copy(interp[0].point).sub(helpPlane.position);
-
-
-    //mouseXOnMouseDown = event.clientX - windowHalfX;
-
-
-    //targetRotationOnMouseDown = targetRotation;
 }
 
 function onDocumentMouseMove( event ) {
@@ -527,12 +417,6 @@ function onDocumentMouseMove( event ) {
     raycaster.setFromCamera( mouse, camera );
 
     intersects = raycaster.intersectObjects( groupSephere.children );
-    // for(let i = 0; i < persons.length; i++)
-    // {
-    //     array_info[i].lookAt(camera.position);
-    // }
-    //node_info.lookAt(camera.position);
-    // console.log(intersects[0]);
     if(INTERSECTED)
     {
         var interp = raycaster.intersectObject( helpPlane );
@@ -545,80 +429,6 @@ function onDocumentMouseMove( event ) {
         window.debugPerson = persons[personIndex];
         //@注：forEach遍历比较方便，而且forEach是回调式不会阻塞，for循环会阻塞主线程
 
-        // INTERSECTED.userData.arrLinkLines.forEach(function(line){
-        //     //console.log(uuid);// @注：回调函数的参数就是遍历的每一个对象，这里就是点击的球的每一个连接线uuid
-        //     // let line = groupLine.getObjectByProperty('uuid',uuid);// @注：拿到该线对象
-        //     let uuid = line.uuid;
-        //     let sourcePer = line.userData.source; // @注：提前取出source和target名称数据，等会儿删了就没法取了
-        //     let targetPer = line.userData.target;
-        //     let index = groupLine.children.indexOf(line);// @注：拿到该线在groupLine.children数组中的位置，方便删除
-        //     if(index !== -1){// @注：执行了一次删除后这个index在下一次move事件响应的时候有可能还没有生成新的线所以会找不到，返回-1。找不到的时候就不应该再删线了。
-        //         let sourceNode = sourcePer.get_obj();
-        //         let targetNode = targetPer.get_obj();
-        //         // let sourceNode = groupSephere.getObjectByName(sourceName);
-        //         // let targetNode = groupSephere.getObjectByName(targetName);
-        //         let sourcePosition = sourceNode.position;
-        //         let targetPosition = targetNode.position;
-
-        //         let geometry = new THREE.Geometry();
-        //         geometry.vertices.push(sourcePosition);
-        //         geometry.vertices.push(targetPosition);
-
-        //         let newLine = new THREE.Line(geometry,myLineMaterial);
-
-        //         let indexInSource = sourceNode.userData.arrLinkLines[uuid];
-        //         let indexInTarget = targetNode.userData.arrLinkLines[uuid];
-
-        //         if(indexInSource === -1 || indexInTarget === -1){
-        //             console.error('异步过程异常，暂停');
-        //             debugger;
-        //         }else{
-        //             sourceNode.userData.arrLinkLines[indexInSource] = newLine;
-        //             sourceNode.userData.arrLinkLines[newLine.uuid] = indexInSource;
-        //             delete sourceNode.userData.arrLinkLines[uuid];
-
-        //             targetNode.userData.arrLinkLines[indexInTarget] = newLine;
-        //             targetNode.userData.arrLinkLines[newLine.uuid] = indexInTarget;
-        //             delete targetNode.userData.arrLinkLines[uuid];
-
-        //             // sourceNode.userData.arrLinkLines.splice(indexInSource,1);
-        //             // sourceNode.userData.arrLinkLines.push(line.uuid);
-
-        //             // targetNode.userData.arrLinkLines.splice(indexInTarget,1);
-        //             // targetNode.userData.arrLinkLines.push(line.uuid);
-        //         }
-
-        //         // @注：同时线要记录下它连接的球的名字，之后靠这个知道要修改哪几个球的arrLinkLines
-        //         newLine.userData={
-        //             target:targetPer,
-        //             source:sourcePer
-        //         }
-
-        //         groupLine.remove(line);// @注：删线
-        //         groupLine.add(newLine);// @注：加线，删线加线连在一起操作是为了减少两者之间的时间，间隔越短越不容易观察到线的短暂消失
-        //     }
-
-        // });
-//
-//// 				    scene.remove(groupLine);
-//
-////                     for(let i = 0; i < linkNum; i++)
-////                     {
-////                         var material = new THREE.LineBasicMaterial({ color: 0x2f5554, linewidth: 1});
-//
-////                         var geometry = new THREE.Geometry();
-////                         geometry.vertices.push( new THREE.Vector3( spheres[GRAPH.links[i].source.index].position.x, spheres[GRAPH.links[i].source.index].position.y, 0 ) );
-////                         geometry.vertices.push( new THREE.Vector3( spheres[GRAPH.links[i].target.index].position.x, spheres[GRAPH.links[i].target.index].position.y, 0 ) );
-//
-////                         var line = new THREE.Line( geometry, material );
-////                         three_links.push(line);
-////                         groupLine[i] = line;
-////                         scene.add(groupLine);
-//// //                        line.userData = {
-//// //                            source: data.links[i].source,
-//// //							target: data.links[i].target };
-//                     }
-
     }
     else
     {
@@ -630,7 +440,12 @@ function onDocumentMouseMove( event ) {
             helpPlane.lookAt(camera.position);
 
 
+
         }
+    }
+    for(let i = 0; i < persons.length; i++)
+    {
+        groupInfo.children[i].lookAt(camera.position);
     }
 
 // //hover turn red
@@ -656,34 +471,10 @@ function onDocumentMouseMove( event ) {
 }
 
 function onDocumentMouseUp( event ) {
-    //document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-    //document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-    //document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
     controls.enabled = true;
     INTERSECTED = null;
 
 }
-//            function onDocumentMouseOut( event ) {
-//                //document.removeEventListener( 'mousemove', onDocumentMouseMove, false );
-//                document.removeEventListener( 'mouseup', onDocumentMouseUp, false );
-//                document.removeEventListener( 'mouseout', onDocumentMouseOut, false );
-//            }
-//            function onDocumentTouchStart( event ) {
-//                if ( event.touches.length == 1 ) {
-//                    event.preventDefault();
-//                    mouseXOnMouseDown = event.touches[ 0 ].pageX - windowHalfX;
-//                    targetRotationOnMouseDown = targetRotation;
-//                }
-//            }
-//            function onDocumentTouchMove( event ) {
-//                if ( event.touches.length == 1 ) {
-//                    event.preventDefault();
-//                    mouseX = event.touches[ 0 ].pageX - windowHalfX;
-//                    targetRotation = targetRotationOnMouseDown + ( mouseX - mouseXOnMouseDown ) * 0.05;
-//                }
-//            }
-
-
 function animate() {
     requestAnimationFrame( animate );
     render();
