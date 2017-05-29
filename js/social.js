@@ -27,9 +27,9 @@ var offset = new THREE.Vector3();
 
 
 
-var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
-//var myLineMaterial = new THREE.LineBasicMaterial( { color: 0x7ebac4 } );
-var mySphereMaterial = new THREE.MeshPhongMaterial({ color: 0x7ebac4 });
+//var myLineMaterial = new THREE.LineDashedMaterial( { color: 0x7ebac4, dashSize: 1, gapSize: 0.5 } );
+const myLineMaterial = new THREE.LineBasicMaterial( { color: 0x7ebac4 } );
+const mySphereMaterial = new THREE.MeshPhongMaterial({ color: 0x7ebac4 });
 
 
 class Person {
@@ -152,7 +152,7 @@ class Relation {
         geometry.vertices.push( target_per.get_pos() );
         geometry.computeLineDistances();
 
-        this.line = new THREE.Line( geometry,  myLineMaterial);
+        this.line = new THREE.Line( geometry, myLineMaterial);
        source_per.set_links(this.line.uuid, this.line);
        target_per.set_links(this.line.uuid, this.line);
 
@@ -174,8 +174,8 @@ class Relation {
 
 
 init();
-//drawCanvasTexture();
-animate();
+drawCanvasTexture();
+//animate();
 
 function init() {
     container = document.getElementById( 'container' );
@@ -223,7 +223,7 @@ function init() {
 
 
 
-    d3.json("policeData.json", function(error, graph) {
+    d3.json("data.json", function(error, graph) {
         window.GRAPH=graph;
         if (error) throw error;
         simulation
@@ -239,14 +239,14 @@ function init() {
             relationgraph.push(pointTemp);
         }
         //set z axis
-        for(let i = 3; i < 6; i++)
-        {
-            relationgraph[i].z = 20;
-        }
-        for(let i = 6; i < 10; i++)
-        {
-            relationgraph[i].z = 40;
-        }
+//        for(let i = 3; i < 6; i++)
+//        {
+//            relationgraph[i].z = 20;
+//        }
+//        for(let i = 6; i < 10; i++)
+//        {
+//            relationgraph[i].z = 40;
+//        }
         for(let i = 0; i < graph.nodes.length; i++)
         {
             let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, relationgraph[i].z);
@@ -260,7 +260,7 @@ function init() {
             // @注1：把没个sphere的name属性赋值为node的id（json数据里Geborand，Myriel之类的人名），之后就可以通过groupSephere.getObjectByName(那个人名)取到对应的球
             // @注2：userData属性是用来给你放自定义数据的，在这里放一个叫arrLinkLines的数组存每个球各自连着的线的uuid，这个uuid是什么下面有讲
         }
-        drawCanvasTexture();
+        //drawCanvasTexture();
         for(let i = 0; i < graph.links.length; i++)
         {
             // @注：通用材质不要每次都new，性能开销大，在声明全局变量myLineMaterial一直用，就像C++ define常量
@@ -338,6 +338,8 @@ function init() {
     //document.addEventListener( 'touchstart', onDocumentTouchStart, false );
     //document.addEventListener( 'touchmove', onDocumentTouchMove, false );
     renderer.domElement.addEventListener( 'resize', onWindowResize, false );
+
+    animate();
 
 }
 
@@ -443,10 +445,10 @@ function onDocumentMouseMove( event ) {
 
         }
     }
-    for(let i = 0; i < persons.length; i++)
-    {
-        groupInfo.children[i].lookAt(camera.position);
-    }
+//    for(let i = 0; i < persons.length; i++)
+//    {
+//        groupInfo.children[i].lookAt(camera.position);
+//    }
 
 // //hover turn red
 //                raycaster.setFromCamera( mouse, camera );

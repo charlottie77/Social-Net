@@ -14,7 +14,7 @@ let a = {
 };
 let b = [];
 
-for (var i = 0; i < 15; i++) {
+for (var i = 0; i < 1000; i++) {
   b[i] = faker.name.findName();
   // console.log(a[i]);
 }
@@ -31,7 +31,6 @@ for (let i = 0; i < b.length; i++){
       value: 1
     });
   }
-
 }
 let dataFile = fs.openSync(path.join(__dirname,'./data.json'),'w+');
 
