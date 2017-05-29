@@ -14,7 +14,7 @@ let a = {
 };
 let b = [];
 
-for (var i = 0; i < 1000; i++) {
+for (var i = 0; i < 20; i++) {
   b[i] = faker.name.findName();
   // console.log(a[i]);
 }
