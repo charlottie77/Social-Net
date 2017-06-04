@@ -5,7 +5,7 @@
 //if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 var container;
 var renderer, scene, camera, stats,controls;
-var groupSephere, groupLine, groupInfo;
+var groupSephere, groupLine, groupInfo,groupSlice;
 var linkNum;
 var raycaster, intersects;
 var mouse, INTERSECTED;
@@ -209,6 +209,10 @@ function init() {
     groupInfo.position.y = 50;
     scene.add(groupInfo);
 
+    groupSlice = new THREE.Group();
+    groupSlice.position.y = 0;
+    scene.add(groupSlice);
+
     renderer = new THREE.WebGLRenderer({antialiasing: true});
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize(width, height);
@@ -225,7 +229,7 @@ function init() {
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(0, 0));
 
-    d3.json("policeData.json", function(error, graph) {
+    d3.json("data100.json", function(error, graph) {
         window.GRAPH=graph;
         if (error) throw error;
         simulation
@@ -274,10 +278,17 @@ function init() {
     forthYear.position.y = 50;
     forthYear.position.z = 160;
 
-    scene.add(firstYear);
-    scene.add(secondYear);
-    scene.add(thirdYear);
-    scene.add(forthYear);
+    groupSlice.add(firstYear);
+    groupSlice.add(secondYear);
+    groupSlice.add(thirdYear);
+    groupSlice.add(forthYear);
+
+    groupSlice.visible = false;
+
+    //scene.add(firstYear);
+    //scene.add(secondYear);
+    //scene.add(thirdYear);
+    //scene.add(forthYear);
 
     var pointLight = new THREE.PointLight( 0xFFFFFF,1, 500,2 );
     // set its position
@@ -310,9 +321,9 @@ function init() {
     scene.add( light );
 
     //add to the scene
-    //scene.add(pointLight);
-    //scene.add(pointLight1);
-    //scene.add(pointLight2);
+    scene.add(pointLight);
+    scene.add(pointLight1);
+    scene.add(pointLight2);
     //scene.add(pointLight3);
 
     stats = new Stats();
@@ -333,21 +344,30 @@ function init() {
      for(let i = 0; i < graph.nodes.length; i++ )
      {
          //var pointTemp = new THREE.Vector3(graph.nodes[i].x-950, graph.nodes[i].y-450, 0);
-         var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
+         if(graph.nodes[i].time !== undefined)
+         {
+             var n = parseInt(graph.nodes[i].time);
+             var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 40 * n);
+         }
+         else
+         {
+             var pointTemp = new THREE.Vector3(graph.nodes[i].x, graph.nodes[i].y, 0);
+         }
+
          relationgraph.push(pointTemp);
      }
      //set z axis
-     var part = parseInt(graph.nodes.length / 4);
-     var l = 0;
-     for(let i = 0; i < graph.nodes.length; i = i + part)
-     {
-         for(let j = i; j < i + part; j++)
-         {
-             relationgraph[j].z = 40 * l;
-         }
-         l++;
-     }
-
+     //setZ(graph.nodes.length);
+     // var part = parseInt(graph.nodes.length / 4);
+     // var l = 0;
+     // for(let i = 0; i < graph.nodes.length; i = i + part)
+     // {
+     //     for(let j = i; j < i + part; j++)
+     //     {
+     //         relationgraph[j].z = 40 * l;
+     //     }
+     //     l++;
+     // }
      for(let i = 0; i < graph.nodes.length; i++)
      {
          let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, relationgraph[i].z);

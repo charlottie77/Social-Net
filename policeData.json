@@ -16,7 +16,8 @@
             "image": "assets/images/woman.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 7311562
+            "recid": 7311562,
+            "time":0
         },
         {
             "id": "925678195910263570",
@@ -34,7 +35,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 1908020
+            "recid": 1908020,
+            "time":0
         },
         {
             "id": "925678199402225728",
@@ -58,7 +60,8 @@
             "image": "assets/images/woman.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 6816123
+            "recid": 6816123,
+            "time":1
         },
         {
             "id": "925678199301055512",
@@ -76,7 +79,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 6252790
+            "recid": 6252790,
+            "time":3
         },
         {
             "id": "925678200303261706",
@@ -94,7 +98,8 @@
             "image": "assets/images/woman.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 1
+            "recid": 1,
+            "time":1
         },
         {
             "id": "925678196411035492",
@@ -112,7 +117,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 130163508
+            "recid": 130163508,
+            "time":2
         },
         {
             "id": "925678196411085111",
@@ -130,7 +136,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 7239835
+            "recid": 7239835,
+            "time":2
         },
         {
             "id": "925678195707135349",
@@ -148,7 +155,8 @@
             "image": "assets/images/woman.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 5976470
+            "recid": 5976470,
+            "time":3
         },
         {
             "id": "925678197201243775",
@@ -166,7 +174,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 18248307
+            "recid": 18248307,
+            "time":3
         },
         {
             "id": "925678199505095953",
@@ -184,7 +193,8 @@
             "image": "assets/images/man.png",
             "nodeType": "Person",
             "nodeType2": "人员",
-            "recid": 6656529
+            "recid": 6656529,
+            "time":4
         }
     ],
     "links": [

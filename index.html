@@ -44,6 +44,8 @@
 
 				var showAxis = {bool: true};
 
+                var showSlice = {bool: false};
+
 				controlKit.addPanel()
 					.addSlider(size,'value','range',{label:'节点大小',onChange:_=>{persons.forEach(p=>{p.set_scale(size.value)})}})
 					.addColor(colorNode,'color',{label:'节点颜色',colorMode:'hex',onChange:_=>{mySphereMaterial.color.setHex(_.replace(/#/,'0x'))}})
@@ -65,6 +67,9 @@
                             drawCanvasTexture();
                         }else{
                            groupInfo.visible = false;
+                           //scene.remove(groupInfo);
+                           //groupInfo = new THREE.Group();
+                          // scene.add(groupInfo);
                         }
                     }})
                     .addCheckbox(showAxis,'bool', {label:'坐标轴', onChange: _ => {
@@ -74,6 +79,13 @@
                             axisHelper.visible = false;
                         }
                     }})
+                    .addCheckbox(showSlice,'bool', {label:'时间片', onChange: _ => {
+                        if(showSlice.bool){
+                            groupSlice.visible = true;
+                        }else{
+                            groupSlice.visible = false;
+                        }
+                    }});
 			});
 		</script>
 		<script src="js/three.js"></script>
