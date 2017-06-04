@@ -24,6 +24,7 @@ var windowHalfX = window.innerWidth / 2;
 var windowHalfY = window.innerHeight / 2;
 var helpPlane;
 var offset = new THREE.Vector3();
+var axisHelper;
 
 
 //const myLineMaterial = new THREE.LineBasicMaterial( { color: 0x7ebac4 } );
@@ -216,7 +217,7 @@ function init() {
     container.appendChild( renderer.domElement );
 
 
-    var axisHelper = new THREE.AxisHelper( 500 );
+    axisHelper = new THREE.AxisHelper( 500 );
     scene.add( axisHelper );
 
     var simulation = d3.forceSimulation()
@@ -224,7 +225,7 @@ function init() {
         .force("charge", d3.forceManyBody())
         .force("center", d3.forceCenter(0, 0));
 
-    d3.json("data100.json", function(error, graph) {
+    d3.json("policeData.json", function(error, graph) {
         window.GRAPH=graph;
         if (error) throw error;
         simulation
@@ -256,15 +257,27 @@ function init() {
     var firstYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
     //firstYear.position.x = 50;
     firstYear.position.y = 50;
-    firstYear.position.z = 20;
+    firstYear.position.z = 40;
 
     var secondYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
     //secondYear.position.x = 50;
     secondYear.position.y = 50;
-    secondYear.position.z = 40;
+    secondYear.position.z = 80;
 
-    //scene.add(firstYear);
-    //scene.add(secondYear);
+    var thirdYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
+    //secondYear.position.x = 50;
+    thirdYear.position.y = 50;
+    thirdYear.position.z = 120;
+
+    var forthYear = new THREE.Mesh(new THREE.PlaneBufferGeometry(100, 100), matYear);
+    //secondYear.position.x = 50;
+    forthYear.position.y = 50;
+    forthYear.position.z = 160;
+
+    scene.add(firstYear);
+    scene.add(secondYear);
+    scene.add(thirdYear);
+    scene.add(forthYear);
 
     var pointLight = new THREE.PointLight( 0xFFFFFF,1, 500,2 );
     // set its position
@@ -293,11 +306,14 @@ function init() {
     pointLight3.position.y = 150;
     pointLight3.position.z = -50;
 
+    var light = new THREE.AmbientLight( 0xe0e0e0 ); // soft white light
+    scene.add( light );
+
     //add to the scene
-    scene.add(pointLight);
-    scene.add(pointLight1);
-    scene.add(pointLight2);
-    scene.add(pointLight3);
+    //scene.add(pointLight);
+    //scene.add(pointLight1);
+    //scene.add(pointLight2);
+    //scene.add(pointLight3);
 
     stats = new Stats();
     container.appendChild( stats.dom );
@@ -321,14 +337,17 @@ function init() {
          relationgraph.push(pointTemp);
      }
      //set z axis
-//        for(let i = 3; i < 6; i++)
-//        {
-//            relationgraph[i].z = 20;
-//        }
-//        for(let i = 6; i < 10; i++)
-//        {
-//            relationgraph[i].z = 40;
-//        }
+     var part = parseInt(graph.nodes.length / 4);
+     var l = 0;
+     for(let i = 0; i < graph.nodes.length; i = i + part)
+     {
+         for(let j = i; j < i + part; j++)
+         {
+             relationgraph[j].z = 40 * l;
+         }
+         l++;
+     }
+
      for(let i = 0; i < graph.nodes.length; i++)
      {
          let tempPer = new Person(graph.nodes[i].id, relationgraph[i].x, relationgraph[i].y, relationgraph[i].z);
@@ -361,7 +380,7 @@ function drawCanvasTexture() {
     var offset = new THREE.Vector3(0,7,0);
     for(let i = 0; i < persons.length; i++)
     {
-        console.log('success2');
+        //console.log('success2');
 
         var canvass = document.createElement('canvas');
         //document.body.appendChild(canvass);
@@ -383,13 +402,12 @@ function drawCanvasTexture() {
         matNodeInfo.map = new THREE.CanvasTexture(canvass);
         //matNodeInfo.map.needsUpdate = true;
         //console.log(persons[i].get_pos());
-
         var info_pos = new THREE.Vector3(persons[i].get_pos().x, persons[i].get_pos().y, persons[i].get_pos().z);
         info_pos.add(offset);
         //info_pos.add(offset);
-        console.log(info_pos);
+        //console.log(info_pos);
         node_info.position.set(info_pos.x, info_pos.y, info_pos.z);
-        console.log(JSON.stringify(node_info.position) + 'mb');
+        //console.log(JSON.stringify(node_info.position) + 'mb');
         groupInfo.add(node_info);
         //ctx.clearRect(0, 0, 600, 150);
     }
