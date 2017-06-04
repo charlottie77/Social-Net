@@ -11,7 +11,7 @@
 	<body>
 		<!-- <div id="admin-panel"></div> -->
 		<div id="container">
-            <!--<button onclick="init()"></button>-->
+            <button onclick="init()"></button>
 			<canvas id="info" width="600" height="150" style="position: fixed"></canvas>
 			 <!--<canvas width="1400" height="1200" ></canvas> -->
 		</div>
@@ -38,7 +38,9 @@
 				var colorNode = {color:'#7ebac4'};
 				var colorLine = {color: '#7ebac4'};
 
-				var isDash = {bool: true}
+				var isDash = {bool: true};
+
+				var showInfo = {bool: false};
 
 				controlKit.addPanel()
 					.addSlider(size,'value','range',{label:'节点大小',onChange:_=>{persons.forEach(p=>{p.set_scale(size.value)})}})
@@ -47,17 +49,22 @@
                     .addCheckbox(isDash,'bool', {label:'虚线', onChange: _ => {
 				    	if(isDash.bool){
 				    	    groupLine.children.forEach( (e) => {
-				    	        e.material = myLineMaterial;
+				    	        e.material = myLineDashMaterial;
 							} );
 						}else{
 				    	    groupLine.children.forEach ( (e) => {
-				    	        e.material = new THREE.LineBasicMaterial({color:0x7ebac4});
+				    	        e.material = myLineMaterial;
 							} )
 						}
-					}});
-//					.addCheckbox(isDash,'bool', {label:'虚线', onChange:_=>{myLineMaterial = new THREE.LineBasicMaterial({color:0x7ebac4})}});
-
-
+					}})
+                    .addCheckbox(showInfo,'bool', {label:'信息', onChange: _ => {
+                        if(showInfo.bool){
+                            groupInfo.visible = true;
+                            drawCanvasTexture();
+                        }else{
+                           groupInfo.visible = false;
+                        }
+                    }});
 			});
 		</script>
 		<script src="js/three.js"></script>
@@ -68,33 +75,6 @@
 		<script src="js/controls/DragControls.js"></script>
 		<script src="js/controls/OrbitControls.js"></script>
 		<script src="js/controls/TrackballControls.js"></script>
-
-		<!--<script type="x-shader/x-vertex" id="vertexshader">-->
-			<!--attribute float size;-->
-		<!--attribute vec3 customColor;-->
-		<!--varying vec3 vColor;-->
-		<!--void main() {-->
-		<!--vColor = customColor;-->
-				<!--vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );-->
-				<!--gl_PointSize = size * ( 300.0 / -mvPosition.z );-->
-				<!--gl_Position = projectionMatrix * mvPosition;-->
-			<!--}-->
-		<!--</script>-->
-
-		<!--<script type="x-shader/x-fragment" id="fragmentshader">-->
-			<!--uniform vec3 color;-->
-			<!--uniform sampler2D texture;-->
-			<!--varying vec3 vColor;-->
-			<!--void main() {-->
-				<!--gl_FragColor = vec4( color * vColor, 1.0 );-->
-				<!--gl_FragColor = gl_FragColor * texture2D( texture, gl_PointCoord );-->
-				<!--if ( gl_FragColor.a < ALPHATEST ) discard;-->
-			<!--}-->
-		<!--</script>-->
-		<script type="text/javascript">
-
-
-		</script>
 		<script src="js/social.js"></script>
 
 
